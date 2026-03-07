@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TP Leaderboard</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f5f3ee;
+      --surface:   #fffefb;
+      --border:    #e2ddd5;
+      --text:      #1a1815;
+      --muted:     #8a8278;
+      --accent:    #c84b2f;
+      --gold:      #c8922f;
+      --silver:    #7a8a96;
+      --bronze:    #a0673a;
+      --up:        #2a7a4b;
+      --down:      #c84b2f;
+      --radius:    10px;
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      max-width: 780px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .course-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .meta span { display: block; }
+
+    /* ── Group Toggle ── */
+    .toggle-wrap {
+      max-width: 780px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .toggle {
+      display: inline-flex;
+      background: var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .toggle button {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .toggle button.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* ── Table Card ── */
+    .card {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0.85rem 1.2rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    thead th.num { text-align: right; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f9f7f3; }
+
+    td {
+      padding: 0.95rem 1.2rem;
+      vertical-align: middle;
+    }
+
+    /* ── Rank cell ── */
+    .rank {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 500;
+      width: 48px;
+      text-align: center;
+    }
+
+    .rank-medal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .rank-1 { background: #fdf3dc; color: var(--gold); border: 1.5px solid var(--gold); }
+    .rank-2 { background: #eef1f3; color: var(--silver); border: 1.5px solid var(--silver); }
+    .rank-3 { background: #f7ede5; color: var(--bronze); border: 1.5px solid var(--bronze); }
+
+    /* ── Name cell ── */
+    .name-cell { min-width: 180px; }
+
+    .student-name {
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .badges {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 1px solid;
+    }
+
+    .badge-streak  { background: #fff3e0; color: #b85c00; border-color: #f4b96a; }
+    .badge-elegant { background: #e8f4f0; color: #1a6b50; border-color: #6ec9ab; }
+
+    /* ── Score cells ── */
+    .score {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.88rem;
+      text-align: right;
+    }
+
+    .score-total {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    /* ── Trend cell ── */
+    .trend {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .trend-up   { color: var(--up); }
+    .trend-down { color: var(--down); }
+    .trend-same { color: var(--muted); }
+
+    /* ── Loading / Error states ── */
+    .state-row td {
+      text-align: center;
+      padding: 3rem 1.2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 780px;
+      margin: 1.5rem auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .tp-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ── Fade transition ── */
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+    .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+    @media (max-width: 560px) {
+      .score-tp { display: none; }
+      thead th.hide-mobile { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+
+  <header>
+    <div class="header-top">
+      <div>
+        <p class="course-label">Algorithms & Data Structures — Spring 2026</p>
+        <h1>TP Leaderboard</h1>
+      </div>
+      <div class="meta">
+        <span>Last updated</span>
+        <span>{{ lastUpdated }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="toggle-wrap">
+    <div class="toggle" role="tablist" aria-label="Select group">
+      <button
+        role="tab"
+        :aria-selected="activeGroup === 1"
+        :class="{ active: activeGroup === 1 }"
+        @click="activeGroup = 1"
+      >Group 1</button>
+      <button
+        role="tab"
+        :aria-selected="activeGroup === 2"
+        :class="{ active: activeGroup === 2 }"
+        @click="activeGroup = 2"
+      >Group 2</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <transition name="fade" mode="out-in">
+      <table :key="activeGroup" role="table" :aria-label="`Group ${activeGroup} leaderboard`">
+        <thead>
+          <tr>
+            <th scope="col" class="num">#</th>
+            <th scope="col">Student</th>
+            <th scope="col" class="num hide-mobile">Latest TP</th>
+            <th scope="col" class="num">Total</th>
+            <th scope="col" class="num hide-mobile">Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loading state -->
+          <tr v-if="loading" class="state-row">
+            <td colspan="5"><span class="spinner"></span> Loading scores…</td>
+          </tr>
+
+          <!-- Error state -->
+          <tr v-else-if="error" class="state-row">
+            <td colspan="5">⚠️ {{ error }}</td>
+          </tr>
+
+          <!-- Empty state -->
+          <tr v-else-if="currentGroup.length === 0" class="state-row">
+            <td colspan="5">No data found for this group.</td>
+          </tr>
+
+          <!-- Data rows -->
+          <template v-else>
+            <tr v-for="(student, index) in currentGroup" :key="student.id">
+
+              <!-- Rank: Reads exactly from the sheet, handles ties for top 3 automatically -->
+              <td class="rank">
+                <span v-if="parseInt(student.rank) === 1" class="rank-medal rank-1">{{ student.rank }}</span>
+                <span v-else-if="parseInt(student.rank) === 2" class="rank-medal rank-2">{{ student.rank }}</span>
+                <span v-else-if="parseInt(student.rank) === 3" class="rank-medal rank-3">{{ student.rank }}</span>
+                <span v-else>{{ student.rank }}</span>
+              </td>
+
+              <!-- Name + badges -->
+              <td class="name-cell">
+                <div class="student-name">{{ student.name }}</div>
+                <div class="badges" v-if="student.badges.length">
+                  <span
+                    v-for="badge in student.badges"
+                    :key="badge.type"
+                    :class="`badge badge-${badge.type}`"
+                  >{{ badge.label }}</span>
+                </div>
+              </td>
+
+              <!-- Latest TP score -->
+              <td class="score score-tp hide-mobile">{{ student.latestTP }}</td>
+
+              <!-- Total -->
+              <td class="score score-total">{{ student.total }}</td>
+
+              <!-- Trend -->
+              <td class="trend hide-mobile">
+                <span v-if="student.trend > 0" class="trend-up">↑ +{{ student.trend }}</span>
+                <span v-else-if="student.trend < 0" class="trend-down">↓ {{ student.trend }}</span>
+                <span v-else class="trend-same">— 0</span>
+              </td>
+
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </transition>
+  </div>
+
+  <footer>
+    <div class="legend">
+      <span class="legend-item">🔥 <strong>Streak</strong> — 3 perfect submissions</span>
+      <span class="legend-item">💡 <strong>Elegant</strong> — best code of the TP</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  CONFIG — direct output links from Google Sheets
+// ─────────────────────────────────────────────
+const CSV_URLS = {
+  group1: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub?gid=682839703&single=true&output=csv',
+  group2: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub?gid=0&single=true&output=csv',
+}
+
+// ─────────────────────────────────────────────
+//  COLUMN NAME MAP
+//  Make sure your Google Sheet header exactly matches the strings on the right.
+// ─────────────────────────────────────────────
+const COL = {
+  rank:        'Rank',         // <--- New: Direct rank mapping
+  name:        'Team Name',    
+  latestTP:    'LatestTP',     
+  total:       'Average',      
+  trend:       'Trend',        
+  badges:      'Badges',       
+}
+
+// ─────────────────────────────────────────────
+//  BADGE CONFIG
+// ─────────────────────────────────────────────
+const BADGE_MAP = {
+  streak:  { type: 'streak',  label: '🔥 Streak'  },
+  elegant: { type: 'elegant', label: '💡 Elegant' },
+}
+
+function parseBadges(raw) {
+  if (!raw || !raw.trim()) return[]
+  return raw.split(',')
+    .map(b => b.trim().toLowerCase())
+    .filter(b => BADGE_MAP[b])
+    .map(b => BADGE_MAP[b])
+}
+
+function rowToStudent(row, index) {
+  return {
+    id:       index, // Just a unique key for Vue rendering
+    rank:     (row[COL.rank] || '').toString().trim(),
+    name:     (row[COL.name] || '').trim(),
+    latestTP: parseFloat(row[COL.latestTP]) || 0,
+    total:    parseFloat(row[COL.total])    || 0,
+    trend:    parseInt(row[COL.trend])      || 0,
+    badges:   parseBadges(row[COL.badges]),
+  }
+}
+
+function fetchCSV(url) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(url, {
+      download:       true,
+      header:         true,
+      skipEmptyLines: true,
+      complete: results => resolve(results.data),
+      error:    err    => reject(err),
+    })
+  })
+}
+
+// ─────────────────────────────────────────────
+
+const { createApp } = Vue
+
+createApp({
+  data() {
+    return {
+      activeGroup: 1,
+      groups: { 1: [], 2:[] },
+      loading: true,
+      error: null,
+      lastUpdated: '—',
+    }
+  },
+
+  computed: {
+    currentGroup() {
+      return this.groups[this.activeGroup]
+    }
+  },
+
+  async mounted() {
+    try {
+      const now = new Date()
+      this.lastUpdated = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+
+      // Fetch both groups concurrently
+      const [rows1, rows2] = await Promise.all([
+        fetchCSV(CSV_URLS.group1),
+        fetchCSV(CSV_URLS.group2),
+      ])
+      
+      // Parse the data exactly as it comes from the sheet
+      this.groups[1] = rows1.map((r, i) => rowToStudent(r, i))
+      this.groups[2] = rows2.map((r, i) => rowToStudent(r, i
