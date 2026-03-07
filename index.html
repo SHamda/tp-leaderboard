@@ -35,7 +35,6 @@
       padding: 2rem 1rem 4rem;
     }
 
-    /* ── Header ── */
     header {
       max-width: 780px;
       margin: 0 auto 2.5rem;
@@ -71,10 +70,8 @@
       color: var(--muted);
       text-align: right;
     }
-
     .meta span { display: block; }
 
-    /* ── Group Toggle ── */
     .toggle-wrap {
       max-width: 780px;
       margin: 0 auto 1.5rem;
@@ -107,7 +104,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
 
-    /* ── Table Card ── */
     .card {
       max-width: 780px;
       margin: 0 auto;
@@ -149,7 +145,6 @@
       vertical-align: middle;
     }
 
-    /* ── Rank cell ── */
     .rank {
       font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
@@ -169,11 +164,10 @@
       font-weight: 700;
     }
 
-    .rank-1 { background: #fdf3dc; color: var(--gold); border: 1.5px solid var(--gold); }
+    .rank-1 { background: #fdf3dc; color: var(--gold);   border: 1.5px solid var(--gold); }
     .rank-2 { background: #eef1f3; color: var(--silver); border: 1.5px solid var(--silver); }
     .rank-3 { background: #f7ede5; color: var(--bronze); border: 1.5px solid var(--bronze); }
 
-    /* ── Name cell ── */
     .name-cell { min-width: 180px; }
 
     .student-name {
@@ -200,7 +194,6 @@
     .badge-streak  { background: #fff3e0; color: #b85c00; border-color: #f4b96a; }
     .badge-elegant { background: #e8f4f0; color: #1a6b50; border-color: #6ec9ab; }
 
-    /* ── Score cells ── */
     .score {
       font-family: 'DM Mono', monospace;
       font-size: 0.88rem;
@@ -212,7 +205,6 @@
       font-size: 0.95rem;
     }
 
-    /* ── Trend cell ── */
     .trend {
       font-family: 'DM Mono', monospace;
       font-size: 0.78rem;
@@ -225,7 +217,6 @@
     .trend-down { color: var(--down); }
     .trend-same { color: var(--muted); }
 
-    /* ── Loading / Error states ── */
     .state-row td {
       text-align: center;
       padding: 3rem 1.2rem;
@@ -248,7 +239,6 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Footer ── */
     footer {
       max-width: 780px;
       margin: 1.5rem auto 0;
@@ -273,13 +263,6 @@
       gap: 0.3rem;
     }
 
-    .tp-count {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    /* ── Fade transition ── */
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
 
@@ -336,34 +319,29 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Loading state -->
+
           <tr v-if="loading" class="state-row">
             <td colspan="5"><span class="spinner"></span> Loading scores…</td>
           </tr>
 
-          <!-- Error state -->
           <tr v-else-if="error" class="state-row">
             <td colspan="5">⚠️ {{ error }}</td>
           </tr>
 
-          <!-- Empty state -->
           <tr v-else-if="currentGroup.length === 0" class="state-row">
             <td colspan="5">No data found for this group.</td>
           </tr>
 
-          <!-- Data rows -->
           <template v-else>
-            <tr v-for="(student, index) in currentGroup" :key="student.id">
+            <tr v-for="student in currentGroup" :key="student.id">
 
-              <!-- Rank: Reads exactly from the sheet, handles ties for top 3 automatically -->
               <td class="rank">
-                <span v-if="parseInt(student.rank) === 1" class="rank-medal rank-1">{{ student.rank }}</span>
-                <span v-else-if="parseInt(student.rank) === 2" class="rank-medal rank-2">{{ student.rank }}</span>
-                <span v-else-if="parseInt(student.rank) === 3" class="rank-medal rank-3">{{ student.rank }}</span>
+                <span v-if="parseInt(student.rank) === 1" class="rank-medal rank-1">1</span>
+                <span v-else-if="parseInt(student.rank) === 2" class="rank-medal rank-2">2</span>
+                <span v-else-if="parseInt(student.rank) === 3" class="rank-medal rank-3">3</span>
                 <span v-else>{{ student.rank }}</span>
               </td>
 
-              <!-- Name + badges -->
               <td class="name-cell">
                 <div class="student-name">{{ student.name }}</div>
                 <div class="badges" v-if="student.badges.length">
@@ -375,21 +353,18 @@
                 </div>
               </td>
 
-              <!-- Latest TP score -->
               <td class="score score-tp hide-mobile">{{ student.latestTP }}</td>
-
-              <!-- Total -->
               <td class="score score-total">{{ student.total }}</td>
 
-              <!-- Trend -->
               <td class="trend hide-mobile">
-                <span v-if="student.trend > 0" class="trend-up">↑ +{{ student.trend }}</span>
+                <span v-if="student.trend > 0"  class="trend-up">↑ +{{ student.trend }}</span>
                 <span v-else-if="student.trend < 0" class="trend-down">↓ {{ student.trend }}</span>
                 <span v-else class="trend-same">— 0</span>
               </td>
 
             </tr>
           </template>
+
         </tbody>
       </table>
     </transition>
@@ -406,24 +381,35 @@
 
 <script>
 // ─────────────────────────────────────────────
-//  CONFIG — direct output links from Google Sheets
+//  SHEET URLS  (gid=682839703 → DSS_TP_1,  gid=0 → DSS_TP_2)
 // ─────────────────────────────────────────────
+const SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub'
+
 const CSV_URLS = {
-  group1: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub?gid=682839703&single=true&output=csv',
-  group2: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub?gid=0&single=true&output=csv',
+  group1: `${SHEET_BASE}?gid=682839703&single=true&output=csv`,
+  group2: `${SHEET_BASE}?gid=0&single=true&output=csv`,
 }
 
 // ─────────────────────────────────────────────
-//  COLUMN NAME MAP
-//  Make sure your Google Sheet header exactly matches the strings on the right.
+//  CORS PROXY
+//  Google Sheets CSVs block direct browser fetches from other domains.
+//  We route through allorigins.win — a free, open-source proxy.
+//  It wraps the CSV text in JSON: { contents: "..." }
+// ─────────────────────────────────────────────
+function proxied(url) {
+  return `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+}
+
+// ─────────────────────────────────────────────
+//  COLUMN MAP  — must match your sheet headers exactly
 // ─────────────────────────────────────────────
 const COL = {
-  rank:        'Rank',         // <--- New: Direct rank mapping
-  name:        'Team Name',    
-  latestTP:    'LatestTP',     
-  total:       'Average',      
-  trend:       'Trend',        
-  badges:      'Badges',       
+  rank:     'CurrentRank',
+  name:     'Team Name',
+  latestTP: 'LatestTP',
+  total:    'Average',
+  trend:    'Trend',
+  badges:   'Badges',
 }
 
 // ─────────────────────────────────────────────
@@ -435,7 +421,7 @@ const BADGE_MAP = {
 }
 
 function parseBadges(raw) {
-  if (!raw || !raw.trim()) return[]
+  if (!raw || !raw.trim()) return []
   return raw.split(',')
     .map(b => b.trim().toLowerCase())
     .filter(b => BADGE_MAP[b])
@@ -444,8 +430,8 @@ function parseBadges(raw) {
 
 function rowToStudent(row, index) {
   return {
-    id:       index, // Just a unique key for Vue rendering
-    rank:     (row[COL.rank] || '').toString().trim(),
+    id:       index,
+    rank:     (row[COL.rank] || (index + 1)).toString().trim(),
     name:     (row[COL.name] || '').trim(),
     latestTP: parseFloat(row[COL.latestTP]) || 0,
     total:    parseFloat(row[COL.total])    || 0,
@@ -454,16 +440,23 @@ function rowToStudent(row, index) {
   }
 }
 
+// Fetch via proxy, parse the CSV text with PapaParse
 function fetchCSV(url) {
-  return new Promise((resolve, reject) => {
-    Papa.parse(url, {
-      download:       true,
-      header:         true,
-      skipEmptyLines: true,
-      complete: results => resolve(results.data),
-      error:    err    => reject(err),
+  return fetch(proxied(url))
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
     })
-  })
+    .then(json => {
+      return new Promise((resolve, reject) => {
+        Papa.parse(json.contents, {
+          header:         true,
+          skipEmptyLines: true,
+          complete: results => resolve(results.data),
+          error:    err    => reject(err),
+        })
+      })
+    })
 }
 
 // ─────────────────────────────────────────────
@@ -474,7 +467,7 @@ createApp({
   data() {
     return {
       activeGroup: 1,
-      groups: { 1: [], 2:[] },
+      groups: { 1: [], 2: [] },
       loading: true,
       error: null,
       lastUpdated: '—',
@@ -492,12 +485,23 @@ createApp({
       const now = new Date()
       this.lastUpdated = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
-      // Fetch both groups concurrently
       const [rows1, rows2] = await Promise.all([
         fetchCSV(CSV_URLS.group1),
         fetchCSV(CSV_URLS.group2),
       ])
-      
-      // Parse the data exactly as it comes from the sheet
+
+      // Data comes pre-ranked from the sheet — just map rows directly
       this.groups[1] = rows1.map((r, i) => rowToStudent(r, i))
-      this.groups[2] = rows2.map((r, i) => rowToStudent(r, i
+      this.groups[2] = rows2.map((r, i) => rowToStudent(r, i))
+
+    } catch (err) {
+      console.error(err)
+      this.error = 'Could not load scores. Check your sheet is published to the web.'
+    } finally {
+      this.loading = false
+    }
+  }
+}).mount('#app')
+</script>
+</body>
+</html>
