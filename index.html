@@ -24,7 +24,7 @@
       --bronze:    #a0673a;
       --up:        #2a7a4b;
       --down:      #c84b2f;
-      --radius:    10px;
+      --radius:    12px;
     }
 
     body {
@@ -32,17 +32,18 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 2rem 1rem 4rem;
+      padding: 1.5rem 1rem 4rem;
     }
 
+    /* ── Header ── */
     header {
       max-width: 780px;
-      margin: 0 auto 2.5rem;
+      margin: 0 auto 2rem;
     }
 
     .header-top {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 1rem;
       flex-wrap: wrap;
@@ -50,15 +51,15 @@
 
     .course-label {
       font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
     }
 
     h1 {
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
       font-weight: 700;
       line-height: 1.1;
       letter-spacing: -0.02em;
@@ -66,21 +67,23 @@
 
     .meta {
       font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--muted);
       text-align: right;
+      line-height: 1.6;
+      flex-shrink: 0;
     }
-    .meta span { display: block; }
 
+    /* ── Toggle ── */
     .toggle-wrap {
       max-width: 780px;
-      margin: 0 auto 1.5rem;
+      margin: 0 auto 1.25rem;
     }
 
     .toggle {
       display: inline-flex;
       background: var(--border);
-      border-radius: 8px;
+      border-radius: 9px;
       padding: 3px;
       gap: 3px;
     }
@@ -89,21 +92,23 @@
       font-family: 'Sora', sans-serif;
       font-size: 0.8rem;
       font-weight: 600;
-      padding: 0.4rem 1.2rem;
+      padding: 0.45rem 1.4rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 7px;
       cursor: pointer;
       background: transparent;
       color: var(--muted);
-      transition: background 0.18s, color 0.18s;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .toggle button.active {
       background: var(--surface);
       color: var(--text);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
+    /* ── Card / Table ── */
     .card {
       max-width: 780px;
       margin: 0 auto;
@@ -111,6 +116,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
     }
 
     table {
@@ -120,14 +126,15 @@
 
     thead th {
       font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
-      padding: 0.85rem 1.2rem;
+      padding: 0.8rem 1rem;
       text-align: left;
       border-bottom: 1px solid var(--border);
       background: var(--bg);
+      white-space: nowrap;
     }
 
     thead th.num { text-align: right; }
@@ -141,26 +148,29 @@
     tbody tr:hover { background: #f9f7f3; }
 
     td {
-      padding: 0.95rem 1.2rem;
+      padding: 0.85rem 1rem;
       vertical-align: middle;
     }
 
+    /* ── Rank ── */
     .rank {
       font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
       font-weight: 500;
-      width: 48px;
+      width: 44px;
       text-align: center;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
     }
 
     .rank-medal {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
     }
 
@@ -168,46 +178,53 @@
     .rank-2 { background: #eef1f3; color: var(--silver); border: 1.5px solid var(--silver); }
     .rank-3 { background: #f7ede5; color: var(--bronze); border: 1.5px solid var(--bronze); }
 
-    .name-cell { min-width: 180px; }
+    /* ── Name / Badges ── */
+    .name-cell { min-width: 0; }
 
     .student-name {
       font-weight: 600;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
+      line-height: 1.3;
+      word-break: break-word;
     }
 
     .badges {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.3rem;
       margin-top: 0.25rem;
       flex-wrap: wrap;
     }
 
     .badge {
-      font-size: 0.65rem;
-      padding: 0.15rem 0.5rem;
+      font-size: 0.62rem;
+      padding: 0.12rem 0.45rem;
       border-radius: 20px;
       font-weight: 600;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       border: 1px solid;
+      white-space: nowrap;
     }
 
     .badge-streak  { background: #fff3e0; color: #b85c00; border-color: #f4b96a; }
     .badge-elegant { background: #e8f4f0; color: #1a6b50; border-color: #6ec9ab; }
 
+    /* ── Scores ── */
     .score {
       font-family: 'DM Mono', monospace;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       text-align: right;
+      white-space: nowrap;
     }
 
     .score-total {
       font-weight: 500;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
     }
 
+    /* ── Trend ── */
     .trend {
       font-family: 'DM Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 500;
       text-align: right;
       white-space: nowrap;
@@ -217,9 +234,10 @@
     .trend-down { color: var(--down); }
     .trend-same { color: var(--muted); }
 
+    /* ── States ── */
     .state-row td {
       text-align: center;
-      padding: 3rem 1.2rem;
+      padding: 3rem 1rem;
       font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
       color: var(--muted);
@@ -227,26 +245,28 @@
 
     .spinner {
       display: inline-block;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border: 2px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       vertical-align: middle;
-      margin-right: 0.5rem;
+      margin-right: 0.4rem;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Footer ── */
     footer {
       max-width: 780px;
-      margin: 1.5rem auto 0;
+      margin: 1.25rem auto 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 0.5rem;
+      padding: 0 0.25rem;
     }
 
     .legend {
@@ -256,19 +276,119 @@
     }
 
     .legend-item {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--muted);
       display: flex;
       align-items: center;
       gap: 0.3rem;
     }
 
+    /* ── Transitions ── */
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-    @media (max-width: 560px) {
-      .score-tp { display: none; }
-      thead th.hide-mobile { display: none; }
+    /* ────────────────────────────────────────────────────
+       MOBILE — cards layout instead of truncated table
+    ──────────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+
+      body { padding: 1.25rem 0.75rem 3rem; }
+
+      /* Hide table version, show card version */
+      .table-view { display: none; }
+
+      /* Card list */
+      .card-list { padding: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+      .student-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        display: grid;
+        grid-template-columns: 40px 1fr auto;
+        grid-template-rows: auto auto;
+        column-gap: 0.75rem;
+        row-gap: 0.2rem;
+        align-items: start;
+        transition: background 0.15s;
+      }
+
+      .student-card:active { background: #f5f2ec; }
+
+      /* Top-3 accent stripe */
+      .student-card.top-1 { border-left: 3px solid var(--gold); }
+      .student-card.top-2 { border-left: 3px solid var(--silver); }
+      .student-card.top-3 { border-left: 3px solid var(--bronze); }
+
+      .card-rank {
+        grid-row: 1 / 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+      }
+
+      .card-name {
+        grid-column: 2;
+        grid-row: 1;
+        font-weight: 600;
+        font-size: 0.88rem;
+        line-height: 1.3;
+        word-break: break-word;
+      }
+
+      .card-badges {
+        grid-column: 2;
+        grid-row: 2;
+        display: flex;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+        margin-top: 0.15rem;
+      }
+
+      .card-scores {
+        grid-column: 3;
+        grid-row: 1 / 3;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 0.2rem;
+        align-self: center;
+      }
+
+      .card-total {
+        font-family: 'DM Mono', monospace;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .card-latest {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+      }
+
+      .card-trend {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 500;
+      }
+
+      /* Keep these but hide in mobile state rows */
+      .state-row td { padding: 2.5rem 1rem; }
+    }
+
+    /* Desktop — show table, hide card list */
+    @media (min-width: 601px) {
+      .card-list-wrap { display: none; }
+    }
+
+    /* Tablet fine-tune */
+    @media (min-width: 601px) and (max-width: 720px) {
+      thead th.hide-tablet { display: none; }
+      td.hide-tablet { display: none; }
     }
   </style>
 </head>
@@ -306,16 +426,19 @@
     </div>
   </div>
 
+  <!-- ── DESKTOP TABLE ── -->
   <div class="card">
     <transition name="fade" mode="out-in">
-      <table :key="activeGroup" role="table" :aria-label="`Group ${activeGroup} leaderboard`">
+
+      <!-- Desktop/Tablet Table -->
+      <table class="table-view" :key="activeGroup" role="table" :aria-label="`Group ${activeGroup} leaderboard`">
         <thead>
           <tr>
             <th scope="col" class="num">#</th>
             <th scope="col">Student</th>
-            <th scope="col" class="num hide-mobile">Latest TP</th>
+            <th scope="col" class="num hide-tablet">Latest TP</th>
             <th scope="col" class="num">Total</th>
-            <th scope="col" class="num hide-mobile">Trend</th>
+            <th scope="col" class="num hide-tablet">Trend</th>
           </tr>
         </thead>
         <tbody>
@@ -353,10 +476,10 @@
                 </div>
               </td>
 
-              <td class="score score-tp hide-mobile">{{ student.latestTP }}</td>
+              <td class="score hide-tablet">{{ student.latestTP }}</td>
               <td class="score score-total">{{ student.total }}</td>
 
-              <td class="trend hide-mobile">
+              <td class="trend hide-tablet">
                 <span v-if="student.trend > 0"  class="trend-up">↑ +{{ student.trend }}</span>
                 <span v-else-if="student.trend < 0" class="trend-down">↓ {{ student.trend }}</span>
                 <span v-else class="trend-same">— 0</span>
@@ -367,6 +490,66 @@
 
         </tbody>
       </table>
+
+      <!-- Mobile Card List -->
+      <div class="card-list-wrap" :key="`m-${activeGroup}`">
+        <div v-if="loading" class="state-row" style="text-align:center;padding:2.5rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted)">
+          <span class="spinner"></span> Loading scores…
+        </div>
+        <div v-else-if="error" style="text-align:center;padding:2.5rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted)">
+          ⚠️ {{ error }}
+        </div>
+        <div v-else-if="currentGroup.length === 0" style="text-align:center;padding:2.5rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted)">
+          No data found for this group.
+        </div>
+        <div v-else class="card-list">
+          <div
+            v-for="student in currentGroup"
+            :key="student.id"
+            class="student-card"
+            :class="{
+              'top-1': parseInt(student.rank) === 1,
+              'top-2': parseInt(student.rank) === 2,
+              'top-3': parseInt(student.rank) === 3
+            }"
+          >
+            <div class="card-rank">
+              <span v-if="parseInt(student.rank) === 1" class="rank-medal rank-1">1</span>
+              <span v-else-if="parseInt(student.rank) === 2" class="rank-medal rank-2">2</span>
+              <span v-else-if="parseInt(student.rank) === 3" class="rank-medal rank-3">3</span>
+              <span v-else style="font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted)">{{ student.rank }}</span>
+            </div>
+
+            <div class="card-name">{{ student.name }}</div>
+
+            <div class="card-scores">
+              <span class="card-total">{{ student.total }}</span>
+              <span class="card-latest">TP: {{ student.latestTP }}</span>
+              <span
+                class="card-trend"
+                :class="{
+                  'trend-up': student.trend > 0,
+                  'trend-down': student.trend < 0,
+                  'trend-same': student.trend === 0
+                }"
+              >
+                <span v-if="student.trend > 0">↑ +{{ student.trend }}</span>
+                <span v-else-if="student.trend < 0">↓ {{ student.trend }}</span>
+                <span v-else>— 0</span>
+              </span>
+            </div>
+
+            <div class="card-badges" v-if="student.badges.length">
+              <span
+                v-for="badge in student.badges"
+                :key="badge.type"
+                :class="`badge badge-${badge.type}`"
+              >{{ badge.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </transition>
   </div>
 
