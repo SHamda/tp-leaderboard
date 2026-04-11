@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TP Leaderboard</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!--
+    FIX 1: Use jsdelivr CDN (more reliable on GitHub Pages than unpkg)
+            and pin exact versions to avoid surprises.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
 
@@ -37,7 +43,7 @@
 
     /* ── Header ── */
     header {
-      max-width: 780px;
+      max-width: 860px;
       margin: 0 auto 2rem;
     }
 
@@ -76,7 +82,7 @@
 
     /* ── Toggle ── */
     .toggle-wrap {
-      max-width: 780px;
+      max-width: 860px;
       margin: 0 auto 1.25rem;
     }
 
@@ -110,7 +116,7 @@
 
     /* ── Card / Table ── */
     .card {
-      max-width: 780px;
+      max-width: 860px;
       margin: 0 auto;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -119,6 +125,7 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.05);
     }
 
+    /* ── DESKTOP TABLE ── */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -130,7 +137,7 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
-      padding: 0.8rem 1rem;
+      padding: 0.8rem 0.75rem;
       text-align: left;
       border-bottom: 1px solid var(--border);
       background: var(--bg);
@@ -148,8 +155,32 @@
     tbody tr:hover { background: #f9f7f3; }
 
     td {
-      padding: 0.85rem 1rem;
+      padding: 0.75rem 0.75rem;
       vertical-align: middle;
+    }
+
+    /* ── TP score pills ── */
+    .tp-scores {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .tp-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .tp-pill.filled {
+      background: #eef3ff;
+      border-color: #b0c4f8;
+      color: #2a4eb5;
     }
 
     /* ── Rank ── */
@@ -259,7 +290,7 @@
 
     /* ── Footer ── */
     footer {
-      max-width: 780px;
+      max-width: 860px;
       margin: 1.25rem auto 0;
       display: flex;
       justify-content: space-between;
@@ -287,18 +318,33 @@
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-    /* ────────────────────────────────────────────────────
-       MOBILE — cards layout instead of truncated table
-    ──────────────────────────────────────────────────── */
-    @media (max-width: 600px) {
+    /* ────────────────────────────────────────────
+       DESKTOP: show table, hide mobile cards
+    ──────────────────────────────────────────── */
+    @media (min-width: 601px) {
+      .mobile-only { display: none !important; }
+    }
 
+    /* Tablet: hide TP breakdown column */
+    @media (min-width: 601px) and (max-width: 780px) {
+      .hide-tablet { display: none; }
+    }
+
+    /* ────────────────────────────────────────────
+       MOBILE: hide table, show card layout
+    ──────────────────────────────────────────── */
+    @media (max-width: 600px) {
       body { padding: 1.25rem 0.75rem 3rem; }
 
-      /* Hide table version, show card version */
-      .table-view { display: none; }
+      .desktop-only { display: none !important; }
 
       /* Card list */
-      .card-list { padding: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+      .card-list {
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
 
       .student-card {
         background: var(--surface);
@@ -307,7 +353,7 @@
         padding: 0.85rem 1rem;
         display: grid;
         grid-template-columns: 40px 1fr auto;
-        grid-template-rows: auto auto;
+        grid-template-rows: auto auto auto;
         column-gap: 0.75rem;
         row-gap: 0.2rem;
         align-items: start;
@@ -316,13 +362,13 @@
 
       .student-card:active { background: #f5f2ec; }
 
-      /* Top-3 accent stripe */
       .student-card.top-1 { border-left: 3px solid var(--gold); }
       .student-card.top-2 { border-left: 3px solid var(--silver); }
       .student-card.top-3 { border-left: 3px solid var(--bronze); }
 
       .card-rank {
-        grid-row: 1 / 3;
+        grid-column: 1;
+        grid-row: 1 / 4;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -344,7 +390,17 @@
         display: flex;
         gap: 0.3rem;
         flex-wrap: wrap;
-        margin-top: 0.15rem;
+        margin-top: 0.1rem;
+      }
+
+      /* Mobile TP pills row */
+      .card-tp-row {
+        grid-column: 2 / 4;
+        grid-row: 3;
+        display: flex;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+        margin-top: 0.4rem;
       }
 
       .card-scores {
@@ -376,19 +432,13 @@
         font-weight: 500;
       }
 
-      /* Keep these but hide in mobile state rows */
-      .state-row td { padding: 2.5rem 1rem; }
-    }
-
-    /* Desktop — show table, hide card list */
-    @media (min-width: 601px) {
-      .card-list-wrap { display: none; }
-    }
-
-    /* Tablet fine-tune */
-    @media (min-width: 601px) and (max-width: 720px) {
-      thead th.hide-tablet { display: none; }
-      td.hide-tablet { display: none; }
+      .state-msg {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
     }
   </style>
 </head>
@@ -403,7 +453,7 @@
         <h1>TP Leaderboard</h1>
       </div>
       <div class="meta">
-        <span>Last updated</span>
+        <span>Last updated</span><br>
         <span>{{ lastUpdated }}</span>
       </div>
     </div>
@@ -411,146 +461,132 @@
 
   <div class="toggle-wrap">
     <div class="toggle" role="tablist" aria-label="Select group">
-      <button
-        role="tab"
-        :aria-selected="activeGroup === 1"
-        :class="{ active: activeGroup === 1 }"
-        @click="activeGroup = 1"
-      >Group 1</button>
-      <button
-        role="tab"
-        :aria-selected="activeGroup === 2"
-        :class="{ active: activeGroup === 2 }"
-        @click="activeGroup = 2"
-      >Group 2</button>
+      <button role="tab" :aria-selected="activeGroup === 1" :class="{ active: activeGroup === 1 }" @click="activeGroup = 1">Group 1</button>
+      <button role="tab" :aria-selected="activeGroup === 2" :class="{ active: activeGroup === 2 }" @click="activeGroup = 2">Group 2</button>
     </div>
   </div>
 
-  <!-- ── DESKTOP TABLE ── -->
   <div class="card">
-    <transition name="fade" mode="out-in">
 
-      <!-- Desktop/Tablet Table -->
-      <table class="table-view" :key="activeGroup" role="table" :aria-label="`Group ${activeGroup} leaderboard`">
+    <!-- ══ DESKTOP TABLE ══ -->
+    <transition name="fade" mode="out-in">
+      <table class="desktop-only" :key="'table-' + activeGroup" role="table" :aria-label="`Group ${activeGroup} leaderboard`">
         <thead>
           <tr>
             <th scope="col" class="num">#</th>
             <th scope="col">Student</th>
-            <th scope="col" class="num hide-tablet">Latest TP</th>
-            <th scope="col" class="num">Total</th>
+            <th scope="col" class="hide-tablet">TP Scores</th>
+            <th scope="col" class="num">Latest TP</th>
+            <th scope="col" class="num">Average</th>
             <th scope="col" class="num hide-tablet">Trend</th>
           </tr>
         </thead>
         <tbody>
-
           <tr v-if="loading" class="state-row">
-            <td colspan="5"><span class="spinner"></span> Loading scores…</td>
+            <td colspan="6"><span class="spinner"></span> Loading scores…</td>
           </tr>
-
           <tr v-else-if="error" class="state-row">
-            <td colspan="5">⚠️ {{ error }}</td>
+            <td colspan="6">⚠️ {{ error }}</td>
           </tr>
-
           <tr v-else-if="currentGroup.length === 0" class="state-row">
-            <td colspan="5">No data found for this group.</td>
+            <td colspan="6">No data found for this group.</td>
           </tr>
-
           <template v-else>
             <tr v-for="student in currentGroup" :key="student.id">
-
               <td class="rank">
-                <span v-if="parseInt(student.rank) === 1" class="rank-medal rank-1">1</span>
-                <span v-else-if="parseInt(student.rank) === 2" class="rank-medal rank-2">2</span>
-                <span v-else-if="parseInt(student.rank) === 3" class="rank-medal rank-3">3</span>
+                <span v-if="student.rank === 1" class="rank-medal rank-1">1</span>
+                <span v-else-if="student.rank === 2" class="rank-medal rank-2">2</span>
+                <span v-else-if="student.rank === 3" class="rank-medal rank-3">3</span>
                 <span v-else>{{ student.rank }}</span>
               </td>
-
               <td class="name-cell">
                 <div class="student-name">{{ student.name }}</div>
                 <div class="badges" v-if="student.badges.length">
-                  <span
-                    v-for="badge in student.badges"
-                    :key="badge.type"
-                    :class="`badge badge-${badge.type}`"
-                  >{{ badge.label }}</span>
+                  <span v-for="badge in student.badges" :key="badge.type" :class="`badge badge-${badge.type}`">{{ badge.label }}</span>
                 </div>
               </td>
-
-              <td class="score hide-tablet">{{ student.latestTP }}</td>
-              <td class="score score-total">{{ student.total }}</td>
-
+              <!-- TP breakdown pills -->
+              <td class="hide-tablet">
+                <div class="tp-scores">
+                  <span
+                    v-for="(val, idx) in student.tpScores"
+                    :key="idx"
+                    :class="['tp-pill', val !== null ? 'filled' : '']"
+                  >TP{{ String(idx+1).padStart(2,'0') }}: {{ val !== null ? val : '—' }}</span>
+                </div>
+              </td>
+              <td class="score">{{ student.latestTP ?? '—' }}</td>
+              <td class="score score-total">{{ student.average !== null ? student.average.toFixed(2) : '—' }}</td>
               <td class="trend hide-tablet">
-                <span v-if="student.trend > 0"  class="trend-up">↑ +{{ student.trend }}</span>
+                <span v-if="student.trend > 0" class="trend-up">↑ +{{ student.trend }}</span>
                 <span v-else-if="student.trend < 0" class="trend-down">↓ {{ student.trend }}</span>
                 <span v-else class="trend-same">— 0</span>
               </td>
-
             </tr>
           </template>
-
         </tbody>
       </table>
+    </transition>
 
-      <!-- Mobile Card List -->
-      <div class="card-list-wrap" :key="`m-${activeGroup}`">
-        <div v-if="loading" class="state-row" style="text-align:center;padding:2.5rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted)">
-          <span class="spinner"></span> Loading scores…
-        </div>
-        <div v-else-if="error" style="text-align:center;padding:2.5rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted)">
-          ⚠️ {{ error }}
-        </div>
-        <div v-else-if="currentGroup.length === 0" style="text-align:center;padding:2.5rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted)">
-          No data found for this group.
-        </div>
+    <!-- ══ MOBILE CARD LIST ══ -->
+    <transition name="fade" mode="out-in">
+      <div class="mobile-only" :key="'mobile-' + activeGroup">
+        <div v-if="loading" class="state-msg"><span class="spinner"></span> Loading scores…</div>
+        <div v-else-if="error" class="state-msg">⚠️ {{ error }}</div>
+        <div v-else-if="currentGroup.length === 0" class="state-msg">No data found for this group.</div>
         <div v-else class="card-list">
           <div
             v-for="student in currentGroup"
             :key="student.id"
             class="student-card"
             :class="{
-              'top-1': parseInt(student.rank) === 1,
-              'top-2': parseInt(student.rank) === 2,
-              'top-3': parseInt(student.rank) === 3
+              'top-1': student.rank === 1,
+              'top-2': student.rank === 2,
+              'top-3': student.rank === 3
             }"
           >
             <div class="card-rank">
-              <span v-if="parseInt(student.rank) === 1" class="rank-medal rank-1">1</span>
-              <span v-else-if="parseInt(student.rank) === 2" class="rank-medal rank-2">2</span>
-              <span v-else-if="parseInt(student.rank) === 3" class="rank-medal rank-3">3</span>
+              <span v-if="student.rank === 1" class="rank-medal rank-1">1</span>
+              <span v-else-if="student.rank === 2" class="rank-medal rank-2">2</span>
+              <span v-else-if="student.rank === 3" class="rank-medal rank-3">3</span>
               <span v-else style="font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted)">{{ student.rank }}</span>
             </div>
 
             <div class="card-name">{{ student.name }}</div>
 
             <div class="card-scores">
-              <span class="card-total">{{ student.total }}</span>
-              <span class="card-latest">TP: {{ student.latestTP }}</span>
-              <span
-                class="card-trend"
+              <span class="card-total">{{ student.average !== null ? student.average.toFixed(2) : '—' }}</span>
+              <span class="card-latest">TP: {{ student.latestTP ?? '—' }}</span>
+              <span class="card-trend"
                 :class="{
                   'trend-up': student.trend > 0,
                   'trend-down': student.trend < 0,
                   'trend-same': student.trend === 0
                 }"
               >
-                <span v-if="student.trend > 0">↑ +{{ student.trend }}</span>
-                <span v-else-if="student.trend < 0">↓ {{ student.trend }}</span>
-                <span v-else>— 0</span>
+                <template v-if="student.trend > 0">↑ +{{ student.trend }}</template>
+                <template v-else-if="student.trend < 0">↓ {{ student.trend }}</template>
+                <template v-else>— 0</template>
               </span>
             </div>
 
             <div class="card-badges" v-if="student.badges.length">
+              <span v-for="badge in student.badges" :key="badge.type" :class="`badge badge-${badge.type}`">{{ badge.label }}</span>
+            </div>
+
+            <!-- TP pills row on mobile -->
+            <div class="card-tp-row">
               <span
-                v-for="badge in student.badges"
-                :key="badge.type"
-                :class="`badge badge-${badge.type}`"
-              >{{ badge.label }}</span>
+                v-for="(val, idx) in student.tpScores"
+                :key="idx"
+                :class="['tp-pill', val !== null ? 'filled' : '']"
+              >TP{{ String(idx+1).padStart(2,'0') }}: {{ val !== null ? val : '—' }}</span>
             </div>
           </div>
         </div>
       </div>
-
     </transition>
+
   </div>
 
   <footer>
@@ -558,41 +594,20 @@
       <span class="legend-item">🔥 <strong>Streak</strong> — 3 perfect submissions</span>
       <span class="legend-item">💡 <strong>Elegant</strong> — best code of the TP</span>
     </div>
+    <div class="meta" v-if="debugInfo" style="font-size:0.65rem;color:var(--muted)">
+      G1: {{ debugInfo.g1 }} rows · G2: {{ debugInfo.g2 }} rows
+    </div>
   </footer>
 
 </div>
 
 <script>
 // ─────────────────────────────────────────────
-//  SHEET URLS  (gid=682839703 → DSS_TP_1,  gid=0 → DSS_TP_2)
+//  FIX 2: Updated to your new published sheet URLs
 // ─────────────────────────────────────────────
-const SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQLtXiXmdgRRWmSK83QO0lWRF7HJpSqODtubXUycysFwT2Q1UW0BdqLN2AwQgZ1GF-os0VXXSrGBdHq/pub'
-
 const CSV_URLS = {
-  group1: `${SHEET_BASE}?gid=117346009&single=true&output=csv`,
-  group2: `${SHEET_BASE}?gid=883162366&single=true&output=csv`,
-}
-
-// ─────────────────────────────────────────────
-//  CORS PROXY
-//  Google Sheets CSVs block direct browser fetches from other domains.
-//  We route through allorigins.win — a free, open-source proxy.
-//  It wraps the CSV text in JSON: { contents: "..." }
-// ─────────────────────────────────────────────
-function proxied(url) {
-  return `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
-}
-
-// ─────────────────────────────────────────────
-//  COLUMN MAP  — must match your sheet headers exactly
-// ─────────────────────────────────────────────
-const COL = {
-  rank:     'CurrentRank',
-  name:     'Team Name',
-  latestTP: 'LatestTP',
-  total:    'Average',
-  trend:    'Trend',
-  badges:   'Badges',
+  group1: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub?gid=682839703&single=true&output=csv',
+  group2: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfR1rxjBpgPsOaC3W-b8RKwHBxV72WkiKqu9yqLleGFUyKk9t39Xxrfwm7AUx9YbnnOW2cQ0Vjaa3E/pub?gid=0&single=true&output=csv',
 }
 
 // ─────────────────────────────────────────────
@@ -611,19 +626,50 @@ function parseBadges(raw) {
     .map(b => BADGE_MAP[b])
 }
 
+// ─────────────────────────────────────────────
+//  ROW → STUDENT
+//  Reads TP01–TP07 individually + sheet-computed fields
+// ─────────────────────────────────────────────
+const TP_COLS = ['TP01','TP02','TP03','TP04','TP05','TP06','TP07']
+
+function parseNum(val) {
+  if (val === undefined || val === null || val.toString().trim() === '') return null
+  const n = parseFloat(val.toString().replace(',', '.'))
+  return isNaN(n) ? null : n
+}
+
 function rowToStudent(row, index) {
+  const tpScores = TP_COLS.map(col => parseNum(row[col]))
+
+  // Use sheet-computed Average & LatestTP if available,
+  // otherwise compute from tpScores ourselves as fallback
+  const sheetAverage  = parseNum(row['Average'])
+  const sheetLatestTP = parseNum(row['LatestTP'])
+
+  const filledScores = tpScores.filter(v => v !== null)
+  const computedAvg  = filledScores.length
+    ? filledScores.reduce((a, b) => a + b, 0) / filledScores.length
+    : null
+  const computedLatest = filledScores.length
+    ? filledScores[filledScores.length - 1]
+    : null
+
   return {
-    id:       index,
-    rank:     (row[COL.rank] || (index + 1)).toString().trim(),
-    name:     (row[COL.name] || '').trim(),
-    latestTP: parseFloat(row[COL.latestTP]) || 0,
-    total:    parseFloat(row[COL.total])    || 0,
-    trend:    parseInt(row[COL.trend])      || 0,
-    badges:   parseBadges(row[COL.badges]),
+    id:       row['ID'] || index,
+    rank:     parseInt(row['CurrentRank']) || (index + 1),
+    name:     (row['Team Name'] || '').trim(),
+    tpScores,
+    latestTP: sheetLatestTP ?? computedLatest,
+    average:  sheetAverage  ?? computedAvg,
+    trend:    parseInt(row['Trend']) || 0,
+    badges:   parseBadges(row['Badges']),
   }
 }
 
-// Fetch via proxy, parse the CSV text with PapaParse
+// ─────────────────────────────────────────────
+//  FETCH — PapaParse can fetch CSV directly
+//  (no CORS proxy needed for published Google Sheets)
+// ─────────────────────────────────────────────
 function fetchCSV(url) {
   return new Promise((resolve, reject) => {
     Papa.parse(url, {
@@ -631,7 +677,7 @@ function fetchCSV(url) {
       header: true,
       skipEmptyLines: true,
       complete: results => resolve(results.data),
-      error: err => reject(err),
+      error:    err    => reject(err),
     })
   })
 }
@@ -648,6 +694,7 @@ createApp({
       loading: true,
       error: null,
       lastUpdated: '—',
+      debugInfo: null,
     }
   },
 
@@ -659,17 +706,25 @@ createApp({
 
   async mounted() {
     try {
-      const now = new Date()
-      this.lastUpdated = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      this.lastUpdated = new Date().toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      })
 
       const [rows1, rows2] = await Promise.all([
         fetchCSV(CSV_URLS.group1),
         fetchCSV(CSV_URLS.group2),
       ])
 
-      // Data comes pre-ranked from the sheet — just map rows directly
-      this.groups[1] = rows1.map((r, i) => rowToStudent(r, i))
-      this.groups[2] = rows2.map((r, i) => rowToStudent(r, i))
+      this.groups[1] = rows1
+        .filter(r => (r['Team Name'] || '').trim())   // skip blank rows
+        .map((r, i) => rowToStudent(r, i))
+
+      this.groups[2] = rows2
+        .filter(r => (r['Team Name'] || '').trim())
+        .map((r, i) => rowToStudent(r, i))
+
+      // Debug helper — shows row counts in footer
+      this.debugInfo = { g1: this.groups[1].length, g2: this.groups[2].length }
 
     } catch (err) {
       console.error(err)
